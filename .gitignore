@@ -1,0 +1,18 @@
+# dependencies
+node_modules
+npm-debug.log
+yarn.lock
+
+# environment
+.env
+
+# build outputs
+dist
+build
+
+# prisma generated client (we generate inside the container)
+src/generated/prisma
+
+# misc
+.git
+.DS_Store

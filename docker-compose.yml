@@ -1,0 +1,40 @@
+
+services:
+  api:
+    build: .
+    container_name: image-service-api
+    ports:
+      - "4000:4000"
+      - "27017:27017"
+    env_file: .env
+    volumes:
+      # Mount only source code (not node_modules)
+      - ./src:/usr/src/app/src
+      - ./prisma:/usr/src/app/prisma
+      # Keep node_modules inside container
+      - /usr/src/app/node_modules
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    # Regenerate Prisma Client on start to avoid overwrite issues
+    command: >
+      sh -c "npx prisma generate && npx prisma db push && npm run dev"
+    restart: always
+
+  mongodb:
+    image: mongo:6.0
+    container_name: image-service-db
+    restart: always
+    ports:
+      - "27017:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "mongodb://mongodb:27017", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mongo_data:

@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User { 
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  email String @unique
+  password String
+  username String? 
+  createdAt DateTime @default(now())
+  images Image[]
+}
+
+model Image {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  url       String
+  filename  String
+  s3Key     String
+  metadata  Json
+
+  ownerId   String   @db.ObjectId
+  owner     User     @relation(fields: [ownerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Self-relation for variants
+  parentId  String?  @db.ObjectId
+  parent    Image?   @relation("ImageVariants", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  variants  Image[]  @relation("ImageVariants")
+
+  // ✅ Indexes for faster queries
+  @@index([ownerId])
+  @@index([parentId])
+}
