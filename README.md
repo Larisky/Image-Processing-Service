@@ -143,3 +143,7 @@ POST http://localhost:4000/images/upload
 ## 📜 License
 
 This project is licensed under the MIT License.
+
+## PROJECT URL
+
+https://roadmap.sh/projects/image-processing-service
